@@ -1,0 +1,16 @@
+[package]
+name = "num-format-ffi"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+# target/release/num_format_ffi.lib
+crate-type = ["staticlib"]
+
+[dependencies]
+zmij = "1"
+itoa = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
