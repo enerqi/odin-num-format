@@ -25,15 +25,9 @@ Convert numbers to strings efficiently with optimized C FFI bindings:
 
 ## Quick Start
 
-### 1. Build the Rust Library
+### 1. Run Tests or Examples
 
-```bash
-just build-rs
-```
-
-This produces `num_format_ffi.lib` (static library).
-
-### 2. Run Tests or Examples
+**Windows (prebuilt library included):**
 
 ```bash
 # Run unit tests
@@ -46,7 +40,23 @@ just examples
 just bench
 ```
 
-### 3. Use in Your Code
+**Linux/macOS (build required):**
+
+```bash
+# Build Rust FFI library first
+just build-rs
+
+# Run unit tests
+just test
+
+# Run example programs
+just examples
+
+# Run benchmarks
+just bench
+```
+
+### 2. Use in Your Code
 
 ```odin
 import num_format "."
@@ -96,12 +106,6 @@ just format
 # Check for style and potential bugs
 just lint
 
-# Build Rust FFI library (required first)
-just build-rs
-
-# Run Rust FFI tests
-just test-rs
-
 # Run unit tests
 just test
 
@@ -113,6 +117,27 @@ just bench-build
 
 # Run benchmarks
 just bench
+```
+
+### Building the Rust FFI Library
+
+**Windows:** A prebuilt library is included, so `build-rs` is optional.
+
+**Linux/macOS:** The Rust FFI library must be built from source:
+
+```bash
+# Build Rust FFI library
+just build-rs
+
+# Run Rust FFI tests
+just test-rs
+```
+
+To rebuild on Windows or when testing Rust changes:
+
+```bash
+just build-rs
+just test-rs
 ```
 
 ### CPU Requirements
@@ -399,11 +424,11 @@ just test
 just examples
 
 # Run your program
-odin build . -out:program -extra-linker-flags:"/LIBPATH:rust-ffi/target/release"
+odin build . -out:program
 ./program
 ```
 
-Works on:
+The library path is configured automatically via `-define:NUM_FORMAT_FFI_LIB` (see below). Works on:
 - Windows (x64, AVX2 required)
 - Linux (x64, AVX2 required)
 - macOS (Intel with AVX2, or Apple Silicon)
@@ -421,9 +446,9 @@ Works on:
    import num_format "path/to/num_format"
    str, ok := num_format.format_f64_to_string(value)
    ```
-4. When building, include library path:
+4. The library path is configured automatically with sensible defaults. No additional flags needed. To override:
    ```bash
-   odin build . -extra-linker-flags:"/LIBPATH:path/to/rust-ffi/target/release"
+   odin build . -define:NUM_FORMAT_FFI_LIB="path/to/library"
    ```
 
 ### C Interop
@@ -492,19 +517,17 @@ error: linker error: cannot find -lnum_format_ffi
    just build-rs
    ```
 
-2. **Use justfile commands** (handles linking automatically):
+2. **Use justfile commands** (configured automatically):
    ```bash
    just test
    just examples
    just bench
    ```
 
-3. **If building outside justfile**, include the library path in your build command:
+3. **If building outside justfile**, the library path is configured with defaults (no additional flags needed). Override only if using a custom path:
    ```bash
-   odin build . -extra-linker-flags:"/LIBPATH:rust-ffi/target/release"
+   odin build . -define:NUM_FORMAT_FFI_LIB="path/to/library"
    ```
-   
-   The `-extra-linker-flags:"/LIBPATH:..."` must point to the directory containing `num_format_ffi.lib` (Windows) or `libnum_format_ffi.so`/`.dylib` (Linux/macOS).
 
 4. **Verify the library was built**:
    ```bash

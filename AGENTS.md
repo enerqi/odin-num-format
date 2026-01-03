@@ -13,19 +13,21 @@ Use the `justfile` to run all recipes for building and quality checking:
   - Runs: `odin check . -vet -strict-style -no-entry-point`
   - Optional args: `--show-timings` or other odin check flags
 
-- **`just build-rs`** - Build the Rust FFI library (num_format_ffi)
+- **`just build-rs`** - Build the Rust FFI library from source
   - Runs: `cargo build --release --manifest-path rust-ffi/Cargo.toml`
+  - Optional on Windows (prebuilt library included)
+  - Required on Linux/macOS (prebuilt not yet available)
 
 - **`just test-rs`** - Run Rust tests in the FFI library
   - Runs: `cargo test --manifest-path rust-ffi/Cargo.toml`
   - Useful for testing the underlying Rust implementations
 
 - **`just test`** - Run all Odin unit tests
-  - Runs: `odin test . -extra-linker-flags:"/LIBPATH:..."`
+  - Runs: `odin test .`
   - All tests must pass before committing
 
 - **`just examples`** - Run example programs to verify bindings work
-  - Runs: `odin run examples -extra-linker-flags:"/LIBPATH:..."`
+  - Runs: `odin run examples`
   - Should show formatted output without errors
 
 - **`just bench-build`** - Build the benchmark executable
@@ -37,17 +39,49 @@ Use the `justfile` to run all recipes for building and quality checking:
 
 ### Full Quality Check Workflow
 
-Run in this order:
+**Windows:**
 ```bash
 just format     # Format code
 just lint       # Check style and potential bugs
-just build-rs   # Build Rust library first
+just test       # Verify unit tests (uses prebuilt library)
+just examples   # Check examples work
+just bench      # Run benchmarks for performance verification
+```
+
+**Linux/macOS:**
+```bash
+just format     # Format code
+just lint       # Check style and potential bugs
+just build-rs   # Build Rust library (required)
 just test       # Verify unit tests
 just examples   # Check examples work
 just bench      # Run benchmarks for performance verification
 ```
 
+To test Rust changes on any platform:
+```bash
+just build-rs   # Rebuild Rust library
+just test-rs    # Test Rust library
+```
+
 ## FFI Bindings
+
+### Library Path Configuration
+
+The library path has sensible defaults (prebuilt library included). Override only if needed:
+
+```bash
+odin build . -define:NUM_FORMAT_FFI_LIB="path/to/library"
+```
+
+Configuration is in `num_format.odin`:
+```odin
+when ODIN_OS == .Windows {
+	NUM_FORMAT_FFI_LIB :: #config(NUM_FORMAT_FFI_LIB, "rust-ffi/target/release/num_format_ffi.lib")
+} else {
+	NUM_FORMAT_FFI_LIB :: #config(NUM_FORMAT_FFI_LIB, "rust-ffi/target/release/num_format_ffi.a")
+}
+```
 
 ### Foreign Function Declarations
 

@@ -37,9 +37,14 @@ BUFFER_SIZE :: 24
 
 /* FFI Function Declarations */
 
+when ODIN_OS == .Windows {
+	NUM_FORMAT_FFI_LIB :: #config(NUM_FORMAT_FFI_LIB, "rust-ffi/target/release/num_format_ffi.lib")
+} else {
+	NUM_FORMAT_FFI_LIB :: #config(NUM_FORMAT_FFI_LIB, "rust-ffi/target/release/num_format_ffi.a")
+}
+
 //  cargo rustc -q -- --print=native-static-libs
-//  +add linker folder path for our extra libraries so "system" can pick it up
-foreign import num_format {"system:num_format_ffi.lib", "system:kernel32.lib", "system:ntdll.lib", "system:userenv.lib", "system:ws2_32.lib", "system:dbghelp.lib"}
+foreign import num_format {NUM_FORMAT_FFI_LIB, "system:kernel32.lib", "system:ntdll.lib", "system:userenv.lib", "system:ws2_32.lib", "system:dbghelp.lib"}
 
 @(default_calling_convention = "c", link_prefix = "zmij_")
 foreign num_format {

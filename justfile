@@ -14,13 +14,13 @@ lint *args:
     odin check . -vet -strict-style -no-entry-point {{args}}
 
 bench-build:
-    odin build bench -o:speed -microarch:native -extra-linker-flags:"/LIBPATH:C:/Users/Enerqi/dev/odin-num-format/rust-ffi/target/release"
+    odin build bench -o:speed -microarch:native
 
 bench:
-    odin run bench -o:speed -microarch:native -extra-linker-flags:"/LIBPATH:C:/Users/Enerqi/dev/odin-num-format/rust-ffi/target/release"
+    odin run bench -o:speed -microarch:native
 
 examples:
-    odin run examples -extra-linker-flags:"/LIBPATH:C:/Users/Enerqi/dev/odin-num-format/rust-ffi/target/release"
+    odin run examples
 
 build-rs:
     cargo build --release --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml"
@@ -29,4 +29,4 @@ test-rs:
     cargo test --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml"
 
 test:
-    odin test . -extra-linker-flags:"/LIBPATH:C:/Users/Enerqi/dev/odin-num-format/rust-ffi/target/release"
+    odin test .
