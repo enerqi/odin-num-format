@@ -25,5 +25,8 @@ examples:
 build-rs:
     cargo build --release --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml"
 
+test-rs:
+    cargo test --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml"
+
 test:
     odin test . -extra-linker-flags:"/LIBPATH:C:/Users/Enerqi/dev/odin-num-format/rust-ffi/target/release"

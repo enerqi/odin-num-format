@@ -16,6 +16,10 @@ Use the `justfile` to run all recipes for building and quality checking:
 - **`just build-rs`** - Build the Rust FFI library (num_format_ffi)
   - Runs: `cargo build --release --manifest-path rust-ffi/Cargo.toml`
 
+- **`just test-rs`** - Run Rust tests in the FFI library
+  - Runs: `cargo test --manifest-path rust-ffi/Cargo.toml`
+  - Useful for testing the underlying Rust implementations
+
 - **`just test`** - Run all Odin unit tests
   - Runs: `odin test . -extra-linker-flags:"/LIBPATH:..."`
   - All tests must pass before committing
@@ -70,3 +74,4 @@ When updating FFI declarations, ensure the link_prefix matches the C library exp
 - `examples/` - Example usage programs
 - `bench/` - Benchmark suite
 - `rust-ffi/` - Rust library implementation (separate cargo project)
+  - `.cargo/config.toml` - Build configuration with `target-cpu=skylake` (requires AVX2)
