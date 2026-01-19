@@ -12,21 +12,27 @@ format:
 # lint checks for style and potential bugs. Accepts extra args like `--show-timings`as needed
 lint *args:
     odin check . -vet -strict-style -no-entry-point {{args}}
+    odin check examples -vet -strict-style
+    odin check bench -vet -strict-style
 
-bench-build:
-    odin build bench -o:speed -microarch:native
+bench-build *args:
+    odin build bench -o:speed -microarch:native {{args}}
 
-bench:
-    odin run bench -o:speed -microarch:native
+bench *args:
+    odin run bench -o:speed -microarch:native {{args}}
 
-examples:
-    odin run examples
+examples *args:
+    odin run examples {{args}}
 
-build-rs:
-    cargo build --release --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml"
+build-rs *args:
+    cargo build --release --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml" {{args}}
+
+lint-rs *args:
+    cargo fmt --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml" {{args}}
+    cargo clippy --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml" {{args}} -- -D warnings
 
 test-rs:
     cargo test --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml"
 
-test:
-    odin test .
+test *args:
+    odin test . {{args}}
