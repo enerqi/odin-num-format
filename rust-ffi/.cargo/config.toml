@@ -1,2 +1,9 @@
 [build]
 rustflags = ["-C", "target-cpu=skylake"]
+
+# note if [target.x86_64-pc-windows-msvc] in global ~/.cargo/config.toml then it would override build.rustflags
+# as target is more specific
+# [target.x86_64-pc-windows-msvc]
+# rustflags = [
+  # "-C", "target-cpu=native",
+# ]

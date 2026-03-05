@@ -1,6 +1,9 @@
 set windows-shell := ["nu", "-c"]
 set shell := ["bash", "-c"]
 
+# cargo limitation is that .cargo/config.toml is read relative to CWD regardless of --manifest-path
+RUST_FFI_DIR := replace(justfile_directory(), "\\", "/") + "/rust-ffi"
+
 
 # odinfmt every odin file under this directory or subdirectories
 format:
@@ -25,14 +28,21 @@ examples *args:
     odin run examples {{args}}
 
 build-rs *args:
-    cargo build --release --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml" {{args}}
+    cd {{RUST_FFI_DIR}}; \
+    cargo build --release {{args}}
+
+clean-rs:
+    cd {{RUST_FFI_DIR}}; \
+    cargo clean
 
 lint-rs *args:
-    cargo fmt --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml" {{args}}
-    cargo clippy --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml" {{args}} -- -D warnings
+    cd {{RUST_FFI_DIR}}; \
+    cargo fmt {{args}}; \
+    cargo clippy {{args}} -- -D warnings
 
 test-rs:
-    cargo test --manifest-path "{{replace(justfile_directory(), "\\", "/")}}/rust-ffi/Cargo.toml"
+    cd {{RUST_FFI_DIR}}; \
+    cargo test
 
 test *args:
     odin test . {{args}}
