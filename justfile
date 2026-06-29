@@ -31,6 +31,15 @@ build-rs *args:
     cd {{RUST_FFI_DIR}}; \
     cargo build --release {{args}}
 
+# print the native static libs to link against the built staticlib. Run this
+# after changing CRT flags (e.g. +crt-static in .cargo/config.toml): the
+# /defaultlib:msvcrt directive flips to libcmt and legacy_stdio_definitions.lib
+# may appear/drop, so the `foreign import` list in num_format.odin must match.
+# (cd into RUST_FFI_DIR so .cargo/config.toml is picked up - it is CWD-relative.)
+native-libs-rs:
+    cd {{RUST_FFI_DIR}}; \
+    cargo rustc --release -q -- --print=native-static-libs
+
 clean-rs:
     cd {{RUST_FFI_DIR}}; \
     cargo clean

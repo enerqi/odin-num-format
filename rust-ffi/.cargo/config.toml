@@ -1,9 +1,33 @@
+# target-cpu=skylake => AVX2/BMI2/FMA baseline (see README "CPU Requirement").
+# This [build] table covers Linux/macOS. Windows is handled by the more-specific
+# [target.x86_64-pc-windows-msvc] table below (which OVERRIDES this one - cargo
+# does not merge rustflags across [build] and [target.*]; the most specific table
+# wins - so target-cpu is repeated there).
 [build]
 rustflags = ["-C", "target-cpu=skylake"]
 
-# note if [target.x86_64-pc-windows-msvc] in global ~/.cargo/config.toml then it would override build.rustflags
-# as target is more specific
-# [target.x86_64-pc-windows-msvc]
-# rustflags = [
-  # "-C", "target-cpu=native",
-# ]
+# Windows: link the STATIC CRT so the staticlib matches the Odin host.
+#
+# Odin's Windows backend links the static CRT (/defaultlib:libcmt). A Rust
+# windows-msvc staticlib defaults to the DYNAMIC CRT (/defaultlib:msvcrt). Mixing
+# static + dynamic CRT in one executable is an MSVC error (LNK4098) and pulls a
+# redundant dynamic-CRT dependency (vcruntime140/ucrtbase) into an otherwise
+# all-static-libcmt exe. +crt-static flips this staticlib to libcmt -> one CRT,
+# self-contained, no warnings. (num_format's FFI is caller-owns-buffer, so there
+# is no cross-heap free hazard here, but the CRT match is still the correct,
+# warning-free, self-contained build.)
+#
+# Windows-ONLY: never use +crt-static on linux-gnu - statically linking glibc
+# breaks dlopen/NSS (getaddrinfo, user/host lookups) and gains nothing. That is
+# why this lives in the windows-msvc target table, not in [build].
+#
+# Caution: a [target.x86_64-pc-windows-msvc] table in a global ~/.cargo/config.toml
+# would override this one (more-local file wins per key, but a user global at the
+# same specificity can shadow). If a Windows build ever links dynamic msvcrt, check
+# for a competing global target table.
+#
+# After changing CRT flags, re-run `cargo rustc -q -- --print=native-static-libs`
+# and reconcile the `foreign import` list in ../num_format.odin (the msvcrt
+# directive flips to libcmt; legacy_stdio_definitions.lib may appear/drop out).
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-cpu=skylake", "-C", "target-feature=+crt-static"]
